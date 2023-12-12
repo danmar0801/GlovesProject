@@ -40,9 +40,32 @@ void loop() {
     }
     
     int* fingerPos = getFingerPositions(calibrate, calibButton);
+    bool joyButton = getButton(PIN_JOY_BTN) != INVERT_JOY;
 
+    #if TRIGGER_GESTURE
+    bool triggerButton = triggerGesture(fingerPos);
+    #else
+    bool triggerButton = getButton(PIN_TRIG_BTN) != INVERT_TRIGGER;
+    #endif
+
+    bool aButton = getButton(PIN_A_BTN) != INVERT_A;
+    bool bButton = getButton(PIN_B_BTN) != INVERT_B;
+
+    #if GRAB_GESTURE
+    bool grabButton = grabGesture(fingerPos);
+    #else
+    bool grabButton = getButton(PIN_GRAB_BTN) != INVERT_GRAB;
+    #endif
+
+    #if PINCH_GESTURE
+    bool pinchButton = pinchGesture(fingerPos);
+    #else
+    bool pinchButton = getButton(PIN_PNCH_BTN) != INVERT_PINCH;
+    #endif
+
+    bool menuButton = getButton(PIN_MENU_BTN) != INVERT_MENU;
     
-    comm->output(encode(fingerPos, calibButton));
+    comm->output(encode(fingerPos, getJoyX(), getJoyY(), joyButton, triggerButton, aButton, bButton, grabButton, pinchButton, calibButton, menuButton));
 
     #if USING_FORCE_FEEDBACK
       char received[100];

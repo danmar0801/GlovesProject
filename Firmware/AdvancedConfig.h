@@ -9,6 +9,7 @@
 
 //Encoding
 #define ENCODING 1
+#define ENCODE_LEGACY 0
 #define ENCODE_ALPHA  1
 
 //Finger indeces (not used for legacy)
@@ -45,5 +46,5 @@
 
 // You must install RunningMedian library to use this feature
 // https://www.arduino.cc/reference/en/libraries/runningmedian/
-#define ENABLE_MEDIAN_FILTER true //use the median of the previous values, helps reduce noise
-#define MEDIAN_SAMPLES 20
+#define ENABLE_MEDIAN_FILTER false //use the median of the previous values, helps reduce noise
+#define MEDIAN_SAMPLES 40

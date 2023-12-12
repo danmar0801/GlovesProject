@@ -14,14 +14,31 @@ int maxFingers[5] = {0,0,0,0,0};
 int minFingers[5] = {ANALOG_MAX, ANALOG_MAX, ANALOG_MAX, ANALOG_MAX, ANALOG_MAX};
 
 void setupInputs(){
+  pinMode(PIN_JOY_BTN, INPUT_PULLUP);
+  pinMode(PIN_A_BTN, INPUT_PULLUP);
+  pinMode(PIN_B_BTN, INPUT_PULLUP);
+
+  pinMode(PIN_MENU_BTN, INPUT_PULLUP);
+  
+  #if !TRIGGER_GESTURE
+  pinMode(PIN_TRIG_BTN, INPUT_PULLUP);
+  #endif
+
+  #if !GRAB_GESTURE
+  pinMode(PIN_GRAB_BTN, INPUT_PULLUP);
+  #endif
+
+  #if !PINCH_GESTURE
+  pinMode(PIN_PNCH_BTN, INPUT_PULLUP);
+  #endif
+
   #if USING_CALIB_PIN
   pinMode(PIN_CALIB, INPUT_PULLUP);
   #endif
 }
 
 int* getFingerPositions(bool calibrating, bool reset){
-  
-  int rawFingers[5] = {analogRead(PIN_THUMB), analogRead(PIN_INDEX), analogRead(PIN_MIDDLE), analogRead(PIN_RING), analogRead(PIN_PINKY)};
+  int rawFingers[5] = {NO_THUMB?0:analogRead(PIN_THUMB), analogRead(PIN_INDEX), analogRead(PIN_MIDDLE), analogRead(PIN_RING), analogRead(PIN_PINKY)};
 
   //flip pot values if needed
   #if FLIP_POTS
@@ -62,6 +79,7 @@ int* getFingerPositions(bool calibrating, bool reset){
         #endif
     }
   }
+
   static int calibrated[5] = {511,511,511,511,511};
   
   for (int i = 0; i<5; i++){
@@ -78,7 +96,36 @@ int* getFingerPositions(bool calibrating, bool reset){
       calibrated[i] = ANALOG_MAX / 2;
     }
   }
-  return calibrated; 
+  return calibrated;
+  
+}
+
+int analogReadDeadzone(byte pin){
+  int raw = analogRead(pin);
+  if (abs(ANALOG_MAX/2 - raw) < JOYSTICK_DEADZONE * ANALOG_MAX / 100)
+    return ANALOG_MAX/2;
+  else
+    return raw;
+}
+
+int getJoyX(){
+  #if JOYSTICK_BLANK
+  return ANALOG_MAX/2;
+  #elif JOY_FLIP_X
+  return ANALOG_MAX - analogReadDeadzone(PIN_JOY_X);
+  #else
+  return analogReadDeadzone(PIN_JOY_X);
+  #endif
+}
+
+int getJoyY(){
+  #if JOYSTICK_BLANK
+  return ANALOG_MAX/2;
+  #elif JOY_FLIP_Y
+  return ANALOG_MAX - analogReadDeadzone(PIN_JOY_Y);
+  #else
+  return analogReadDeadzone(PIN_JOY_Y);
+  #endif
 }
 
 bool getButton(byte pin){
